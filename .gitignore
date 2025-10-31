@@ -1,0 +1,58 @@
+# ==========================
+# 🧩 CLASSCONTROLPRO .GITIGNORE
+# ==========================
+
+# 👮‍♂️ Segurança — NÃO subir arquivos sensíveis
+model/conexao.py
+*.env
+*.ini
+*.cfg
+config.json
+config/*.json
+credentials.json
+
+# 🗄️ Banco de Dados local e backups
+*.sql
+*.db
+*.sqlite3
+*.bak
+*.backup
+
+# 💻 Ambientes virtuais
+venv/
+.env/
+env/
+ENV/
+.venv/
+
+# 🐍 Arquivos Python compilados
+__pycache__/
+*.py[cod]
+*$py.class
+
+# 📦 Dependências geradas automaticamente
+*.egg
+*.egg-info/
+dist/
+build/
+develop-eggs/
+.eggs/
+pip-wheel-metadata/
+
+# 🧹 Logs e temporários
+*.log
+*.tmp
+*.swp
+*.swo
+*.DS_Store
+
+# ⚙️ IDEs e editores
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# 📷 Arquivos de exportação e mídia local
+/assets/diagramas/*.png
+/assets/diagramas/*.pdf
+/assets/testes/
