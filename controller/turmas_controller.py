@@ -8,13 +8,15 @@ def cadastrarTurmas(tipo_usuario, nome):
     else:
         print("❌ Acesso negado: você não pode criar turmas.")
 
-def listarTodasTurmas(usuario):
-    if acessos(usuario, "turmas", "read"):
-        turmas = listarTurmas()
+def listarTodasTurmas():
+    turmas = listarTurmas()
+    if turmas:
+        print("Turmas Cadastradas:")
         for turma in turmas:
-            print(turma)
+            print(f"Turma: {turma['nome']}")
     else:
-        print("❌ Acesso negado: você não pode visualizar turmas.")
+        print("❌ Nenhuma turma encontrada.")
+
 
 def atualizarTurmaExistente(id_turma, novos_dados, usuario):
     if acessos(usuario, "turmas", "update"):

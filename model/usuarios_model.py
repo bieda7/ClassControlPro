@@ -17,7 +17,7 @@ def inserirUsuarios(nome, email, senha, tipo):
 def listarUsuarios():
     conexao = conectar()
     cursor = conexao.cursor(dictionary=True)
-    cursor.execute("SELECT id_usuario, nome, email, tipo * FROM usuarios ")
+    cursor.execute("SELECT * FROM usuarios ")
     usuarios = cursor.fetchall()
     conexao.close()
     return usuarios

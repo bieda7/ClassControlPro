@@ -1,4 +1,4 @@
-def exibir_login():
+def loginView():
     print("Funcionando")
     
     return 

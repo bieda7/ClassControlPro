@@ -1,9 +1,9 @@
 from model.alunos_model import inserirAlunos, listarAlunos, atualizarAlunos, deletarAlunos
 from utils.permissoes import acessos
 
-def cadastrarAlunos(tipo_usuario, nome, email, matricula, id_turma):
+def cadastrarAlunos(tipo_usuario, matricula, nome, email, id_turma):
     if acessos(tipo_usuario, "alunos", "create"):
-        inserirAlunos(nome, email, matricula, id_turma)
+        inserirAlunos(matricula, nome, email, id_turma)
         print("✅ Aluno cadastrado com sucesso!")
     else:
         print("❌ Acesso negado: você não pode criar alunos.")

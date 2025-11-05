@@ -33,14 +33,15 @@ def login(email, senha):
         print("❌ Senha incorreta.")
         return None
     
-def listarTodosUsuarios(usuario, id_usuario, nome, email, tipo):
-    if acessos(usuario, "usuario", "read"):
-        usuarios = listarUsuarios()
-        for u in usuarios:
-            print(f"ID: {u[id_usuario]} | Nome: {u[nome]}, | Email: {u[email]} | Tipo: {u[tipo]}")
+def listarTodosUsuarios():
+    usuarios = listarUsuarios()
+    if usuarios:
+        print("Usuários cadastrados:")
+        for usuario in usuarios:
+            print(f"ID: {usuario['id_usuario']} | Nome: {usuario['nome']} | Tipo: {usuario['tipo']}")
     else:
-        print("❌ Parece que você não acesso de leitura aos usuários cadastrados!")
-        
+        print("⚠️ Nenhum usuário encontrado!")
+            
 def excluirUsuarios(id_usuario, usuario):
     if acessos(usuario, "usuario", "delete"):
         deletarUsuarios(id_usuario)

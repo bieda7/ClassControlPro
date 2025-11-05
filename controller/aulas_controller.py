@@ -1,8 +1,8 @@
 from model.aulas_model import inserirAulas, listarAulasPorTurma, salvarArquivoAulas, atualizarAulas, deletarAulas
 from utils.permissoes import acessos
 
-def cadastrarAulas(usuario, titulo, descricao, id_turma, data_aula):
-    if acessos(usuario, "aula", "create"):
+def cadastrarAulas(tipo_usuario, titulo, descricao, id_turma, data_aula):
+    if acessos(tipo_usuario, "aulas", "create"):
        inserirAulas(titulo, descricao, id_turma, data_aula)
        print(f" ✅ Aula cadastrada com sucesso!")
     else:

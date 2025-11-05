@@ -1,12 +1,12 @@
 from model.conexao import conectar
 
      
-def inserirAlunos(nome, email, id_turma):
+def inserirAlunos(matricula, nome, email, id_turma):
     conexao = conectar()
     cursor = conexao.cursor(dictionary=True)
     cursor.execute(
-        "INSERT INTO alunos (nome, email, id_turma) VALUES (%s, %s, %s)",
-        (nome, email, id_turma)
+        "INSERT INTO alunos (matricula, nome, email, id_turma) VALUES (%s, %s, %s, %s)",
+        (matricula ,nome, email, id_turma)
     )
     conexao.commit()
     conexao.close()

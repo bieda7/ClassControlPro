@@ -1,14 +1,15 @@
 from model.conexao import conectar
+from datetime import date
 
 def inserirAtividades(titulo, descricao, data_entrega, id_aula):
     conexao = conectar()
     cursor = conexao.cursor(dictionary=True)
     cursor.execute(
-        "INSERT INTO atividades (titulo, descricao, data_entrega, id_aula) VALUES (%s, %s, %s, %s)"
+        "INSERT INTO atividades (titulo, descricao, data_entrega, id_aula) VALUES (%s, %s, %s, %s)",
         (titulo, descricao, data_entrega, id_aula)
     )
-    cursor.commit()
-    cursor.close()
+    conexao.commit()
+    conexao.close()
 
 def listarAtividadePorAula(id_aula):
     conexao = conectar()
@@ -18,15 +19,15 @@ def listarAtividadePorAula(id_aula):
     cursor.close()
     return atividades
 
-def registrarEntrega(id_atividade, id_aluno, status='em andamento', nota=None):
+def confirmarEntrega(id_atividade, id_aluno, dia_entrega, observacao, status='em andamento', nota=None):
     conexao = conectar()
     cursor = conexao.cursor(dictionary=True)
     cursor.execute(
-        "INSERT INTO atividades_alunos (id_atividade, id_aluno, status, nota) VALUES (%s, %s, %s, %s)"
-        (id_atividade, id_aluno, status, nota)
+        "INSERT INTO registrar_entrega (id_atividade, id_aluno, status, nota, data_entrega, observacao) VALUES (%s, %s, %s, %s, %s, %s)",
+        (id_atividade, id_aluno, status, nota, dia_entrega, observacao)
         )
-    cursor.commit()
-    cursor.close()
+    conexao.commit()
+    conexao.close()
 
 def atualizarAtividades(id_atividade, novos_dados):
     conexao = None
