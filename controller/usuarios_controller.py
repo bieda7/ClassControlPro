@@ -1,50 +1,52 @@
-from model.usuarios_model import inserirUsuarios, listarUsuarios, buscarUsuarioPorEmail, deletarUsuarios
+from model.usuarios_model import inserirUsuarios, listarUsuarios, buscarUsuarioPorEmail, deletarUsuarios, atualizarUsuarios
 from utils.permissoes import acessos
-import hashlib #Modulo para criptografar senha
+import hashlib  # Módulo para criptografar senha
 
-# Função de cadastro de usuários
-def cadastrarUsuarios(tipo_usuario, nome, email, senha, tipo):
-    if acessos(tipo_usuario, 'usuarios','create'):
-        # Verifica se o usuario já existe no sistema
-        usuario_existente = buscarUsuarioPorEmail(email)
-        if usuario_existente:
-            print("❌ Já existe um usuário com este email, cadastre um novo endereço de email!")
-            return False
-        # Criptografia da senha registrada pelo usuário
-        senha_hash = hashlib.sha256(senha.encode()).hexdigest()
-            
-        inserirUsuarios(nome, email, senha_hash, tipo)
-        print("✅ Usuário cadastrado com sucesso!")
-        return True
-    else:
-        print(f"Seu perfil de usuário não permite a realização de novos cadastros!")
-        return False
+# === Cadastro de Usuários ===
+def cadastrarUsuarios(nome, email, senha, tipo):
+    usuario_existente = buscarUsuarioPorEmail(email)
+    if usuario_existente:
+        return "❌ Já existe um usuário com este email, cadastre um novo endereço de email!"
 
+    senha_hash = hashlib.sha256(senha.encode()).hexdigest()
+    inserirUsuarios(nome, email, senha_hash, tipo)
+    return "✅ Usuário cadastrado com sucesso!"
+
+# === Login ===
 def login(email, senha):
     usuario = buscarUsuarioPorEmail(email)
     if not usuario:
-        print("❌ Usuario não encontrado!")
-    
+        return None, "❌ Usuário não encontrado!"
+
     senha_hash = hashlib.sha256(senha.encode()).hexdigest()
-    if usuario["senha"] == senha_hash: #Verifica se a senha informada é a mesma senha armazenada no DB 
-        print(f"✅ Login bem-sucedido! Bem-vindo, {usuario["nome"]} ({usuario["tipo"]})")
-        return usuario
-    else: 
-        print("❌ Senha incorreta.")
-        return None
-    
+    if usuario["senha"] == senha_hash:
+        return usuario, "✅ Login bem-sucedido! {usuario['nome']}!"
+    else:
+        return None, "❌ Senha incorreta."
+
+# === Listar Todos os Usuários ===
 def listarTodosUsuarios():
     usuarios = listarUsuarios()
-    if usuarios:
-        print("Usuários cadastrados:")
-        for usuario in usuarios:
-            print(f"ID: {usuario['id_usuario']} | Nome: {usuario['nome']} | Tipo: {usuario['tipo']}")
+    return usuarios  # retorna lista de usuários, mesmo que vazia
+
+# === Editar Usuários ===
+def editarUsuarios(id_usuario, nome=None, email=None, tipo=None):
+    novos_dados = {}
+    if nome: novos_dados["nome"] = nome
+    if email: novos_dados["email"] = email
+    if tipo: novos_dados["tipo"] = tipo
+
+    sucesso = atualizarUsuarios(id_usuario, novos_dados)
+    if sucesso:
+        return f"✅ Usuário {id_usuario} atualizado com sucesso!"
     else:
-        print("⚠️ Nenhum usuário encontrado!")
-            
-def excluirUsuarios(id_usuario, usuario):
-    if acessos(usuario, "usuario", "delete"):
-        deletarUsuarios(id_usuario)
-        return f"🗑️ Usuario {id_usuario} deletado com sucesso!"
-    else:
-        return "❌ Acesso não permitido: Apenas administradores podem deletar usuários!"
+        return "❌ Erro ao atualizar o usuário."
+
+# === Excluir Usuários ===
+def excluirUsuarios(id_usuario):
+    deletarUsuarios(id_usuario)
+    return f"🗑️ Usuário {id_usuario} deletado com sucesso!"
+
+def contarUsuarios():
+    usuarios = listarUsuarios
+    return len(usuarios)

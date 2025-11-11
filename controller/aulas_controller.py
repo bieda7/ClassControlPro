@@ -1,32 +1,19 @@
 from model.aulas_model import inserirAulas, listarAulasPorTurma, salvarArquivoAulas, atualizarAulas, deletarAulas
-from utils.permissoes import acessos
 
-def cadastrarAulas(tipo_usuario, titulo, descricao, id_turma, data_aula):
-    if acessos(tipo_usuario, "aulas", "create"):
+def cadastrarAulas(titulo, descricao, id_turma, data_aula):
        inserirAulas(titulo, descricao, id_turma, data_aula)
-       print(f" ✅ Aula cadastrada com sucesso!")
-    else:
-        print(f"❌ Você não possui permissão para cadastrar aulas!")
+       return f" ✅ Aula cadastrada com sucesso!"
 
-def listarTodasAulas(usuario):
-    if acessos(usuario, "aulas", "read"):
+def listarTodasAulas():
         aulas = listarAulasPorTurma
-        for aula in aulas:
-            print(aula)
-    else: 
-        print("❌ Você não pode listar as aulas!")
+        return aulas
 
-def atualizarAulasExistentes(usuario, id_aula, novos_dados):
-    if acessos(usuario, "aula", "update"):
+def editarAulas(id_aula, novos_dados):
         atualizarAulas(id_aula, novos_dados)
-        print("✅ Aula atualizada com sucesso!")
-    else:
-        print("❌ Acesso negado: você não pode atualizar aulas.")
+        return f" ✅ Aula atualizada com sucesso!"
 
-def deletarAulasExistentes(usuario, id_aula):
-    if acessos(usuario, "aula", "delete"):
+def deletarAulasExistentes(id_aula):
         deletarAulas(id_aula)
-        print("✅ Aula deletada com sucesso!")
-    else: 
-        print("❌ Você não pode deletar aulas!")
+        return f"✅ Aula deletada com sucesso!"
+
 

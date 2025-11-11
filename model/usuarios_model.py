@@ -41,16 +41,17 @@ def atualizarUsuarios(id_usuario, novos_dados):
         # Adiciona o id_aluno no final da lista de valores
         valores.append(id_usuario)
         # Monta a query corretamente
-        cursor.execute(f"UPDATE usuários SET {', '.join(campos)} WHERE id_usuario = %s", valores)
+        cursor.execute(f"UPDATE usuarios SET {', '.join(campos)} WHERE id_usuario = %s", valores)
         conexao.commit()
-        
+        return True
 
     except Exception as e:
         print("Tipo de erro: ", type(e).__name__)
         print(f"❌ Não foi possível realizar a atualização dos dados. Erro: {e}")
         if conexao:
             conexao.rollback()
-   
+        return False
+
     finally:
         if cursor:
             cursor.close()
@@ -71,7 +72,7 @@ def buscarUsuarioPorEmail(email):
 def deletarUsuarios(id_usuario):
     conexao = conectar()
     cursor = conexao.cursor(dictionary=True)
-    cursor.execute("DELETE FROM usuarios WHERE id_usuario = %s", (id_usuario))
+    cursor.execute("DELETE FROM usuarios WHERE id_usuario = %s", (id_usuario,))
     conexao.commit()
     conexao.close()
 
