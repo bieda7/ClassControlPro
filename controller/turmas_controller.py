@@ -12,8 +12,8 @@ def listarTodasTurmas():
     return turmas  # retorna lista de turmas mesmo que vazia
 
 # === Editar Turmas ===
-def editarTurmas(id_turma, novos_dados):
-    atualizarTurmas(id_turma, novos_dados)
+def editarTurmas(id_turma, dados):
+    atualizarTurmas(id_turma, dados)
     return "✅ Turma atualizada com sucesso!"
 
 # === Exibir Professores de uma Turma ===
@@ -27,5 +27,5 @@ def excluirTurmas(id_turma):
     return "🗑️ Turma excluída com sucesso!"
 
 def contarTurmas():
-    turmas = (listarTurmas)
+    turmas = listarTodasTurmas()
     return len(turmas)

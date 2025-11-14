@@ -2,16 +2,29 @@ import customtkinter as ctk
 
 # ========= PALETA DE CORES =========
 COLORS = {
-    "bg": "#F5F5F5",
-    "accent": "#F97316",
-    "accent_hover": "#FDBA74",
-    "text_dark": "#1F2937",
-    "text_light": "#6B7280",
-    "card_bg": "#F9FAFB",
+    # Fundo geral da aplicação
+    "bg": "#FFFAFA",
+
+    # Tons principais (laranja moderno, vibrante e quente)
+    "accent": "#FF6B00",          # Laranja principal (vibrante e mais profundo)
+    "accent_hover": "#FF8C33",    # Hover mais claro, suave e quente
+
+    # Texto (claro e escuro)
+    "text_dark": "#1E1E1E",       # Texto padrão escuro — melhora contraste
+    "text_light": "#FFFFFF",      # Texto claro (usado em botões ativos)
+
+    # Elementos de cartão / painel
+    "card_bg": "#FFFFFF",
+
+    # Botões de perigo
     "danger": "#DC2626",
     "danger_hover": "#EF4444",
-    "sidebar_bg": "white"
+
+    # Sidebar
+    "sidebar_bg": "#FFFFFF",      # Fundo branco puro — limpo e leve
+    "sidebar_border": "#E5E7EB",  # Linha sutil de separação (cinza claro)
 }
+
 
 
 # ========= FUNÇÃO DE FONTES =========

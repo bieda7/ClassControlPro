@@ -43,7 +43,7 @@ def associarProfessor(id_turma, id_professor):
     conexao.close()
     print("✅ Professor associado à turma com sucesso!")
 
-def atualizarTurmas(id_turma, novos_dados):
+def atualizarTurmas(id_turma, dados):
     conexao = None
     cursor = None
 
@@ -53,14 +53,14 @@ def atualizarTurmas(id_turma, novos_dados):
         campos = []
         valores = []
 
-        for campo, valor in novos_dados.items():
+        for campo, valor in dados.items():
             campos.append(f"{campo} = %s")
             valores.append(valor)
 
         # Adiciona o id_aluno no final da lista de valores
         valores.append(id_turma)
         # Monta a query corretamente
-        cursor.execute(f"UPDATE turma SET {', '.join(campos)} WHERE id_turma = %s", valores)
+        cursor.execute(f"UPDATE turmas SET {', '.join(campos)} WHERE id_turma = %s", valores)
         conexao.commit()
         return True
 
@@ -87,8 +87,9 @@ def listarProfessoresDaTurma(id_turma):
     conexao.close()
     return professores
 
-def deletarTurmas(nome):
+def deletarTurmas(id_turma):
     conexao = conectar()
     cursor = conexao.cursor(dictionary=True)
-    cursor.execute("DELETE nome FROM turmas")
-
+    cursor.execute("DELETE FROM turmas WHERE id_turma = %s", (id_turma,))
+    conexao.commit()
+    conexao.close()

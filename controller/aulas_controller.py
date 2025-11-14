@@ -1,12 +1,11 @@
-from model.aulas_model import inserirAulas, listarAulasPorTurma, salvarArquivoAulas, atualizarAulas, deletarAulas
+from model.aulas_model import inserirAulas, listarAulas, salvarArquivoAulas, atualizarAulas, deletarAulas
 
-def cadastrarAulas(titulo, descricao, id_turma, data_aula):
-       inserirAulas(titulo, descricao, id_turma, data_aula)
+def cadastrarAulas(titulo, descricao, data_aula):
+       inserirAulas(titulo, descricao, data_aula)
        return f" ✅ Aula cadastrada com sucesso!"
 
 def listarTodasAulas():
-        aulas = listarAulasPorTurma
-        return aulas
+        return listarAulas() 
 
 def editarAulas(id_aula, novos_dados):
         atualizarAulas(id_aula, novos_dados)
@@ -14,6 +13,6 @@ def editarAulas(id_aula, novos_dados):
 
 def deletarAulasExistentes(id_aula):
         deletarAulas(id_aula)
-        return f"✅ Aula deletada com sucesso!"
+        return f"✅ Aula {id_aula} deletada com sucesso!"
 
 

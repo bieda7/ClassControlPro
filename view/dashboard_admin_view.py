@@ -1,6 +1,7 @@
 import customtkinter as ctk
 from tkinter import messagebox
 from view.ui_config import COLORS, get_fonts
+from PIL import Image
 
 
 class DashboardAdmin(ctk.CTkToplevel):
@@ -10,7 +11,7 @@ class DashboardAdmin(ctk.CTkToplevel):
         self.title("ClassControlPro - Painel do Administrador")
         self.geometry("1100x650")
         self.configure(fg_color=COLORS["bg"])
-        self.resizable(False, False)
+        self.resizable(True, True)
 
         # Fontes
         FONTS = get_fonts()
@@ -19,7 +20,7 @@ class DashboardAdmin(ctk.CTkToplevel):
         self.text_font = FONTS["text"]
         self.button_font = FONTS["button"]
 
-        # Estrutura principal
+        # Layout principal
         self.grid_columnconfigure(1, weight=1)
         self.grid_rowconfigure(0, weight=1)
 
@@ -28,89 +29,133 @@ class DashboardAdmin(ctk.CTkToplevel):
         self.sidebar.grid(row=0, column=0, sticky="nswe")
         self.sidebar.grid_rowconfigure(8, weight=1)
 
-        ctk.CTkLabel(
-            self.sidebar, text="ClassControlPro",
-            font=self.title_font, text_color=COLORS["text_dark"]
-        ).grid(row=0, column=0, padx=20, pady=(30, 30))
+        # Logotipo
+        logo_img = ctk.CTkImage(
+            light_image=Image.open("view/components/logotipo-classcontrolpro.png"),
+            size=(150, 150)
+        )
+
+        self.logo_label = ctk.CTkLabel(self.sidebar, image=logo_img, text="")
+        self.logo_label.grid(row=0, column=0, pady=(20, 0), padx=20)
 
         self.create_sidebar_button("🏠  Início", self.show_home, 1, True)
         self.create_sidebar_button("👥  Usuários", self.show_usuarios, 2)
         self.create_sidebar_button("🏫  Turmas", self.show_turmas, 3)
-        self.create_sidebar_button("🧩  Permissões", self.show_permissoes, 4)
-        self.create_sidebar_button("📊  Relatórios", self.show_relatorios, 5)
+        self.create_sidebar_button("📊  Relatórios", self.show_relatorios, 4)
 
         # Botão sair
         self.btn_sair = ctk.CTkButton(
             self.sidebar, text="🚪  Sair", width=180, height=40,
             fg_color=COLORS["danger"], hover_color=COLORS["danger_hover"],
-            text_color="white", corner_radius=8, command=self.sair
+            text_color="white", corner_radius=8, command=self.quit
         )
         self.btn_sair.grid(row=9, column=0, padx=20, pady=(50, 20))
 
-        # ===== ÁREA PRINCIPAL =====
+        # Main frame
         self.main_frame = ctk.CTkFrame(self, fg_color="white", corner_radius=15)
         self.main_frame.grid(row=0, column=1, sticky="nsew", padx=20, pady=20)
         self.main_frame.grid_columnconfigure((0, 1, 2), weight=1)
 
+        # Inicializa com home
         self.show_home()
 
-    # ====== Métodos ======
+    # ====== MÉTODOS ======
+
+    # Criação dos botões do meun lateral
     def create_sidebar_button(self, text, command, row, active=False):
         color = COLORS["accent"] if active else COLORS["sidebar_bg"]
         text_color = "white" if active else COLORS["text_dark"]
-        hover = COLORS["accent_hover"] if active else "#E5E7EB"
+        hover = COLORS["accent_hover"] if active else "#E5E7EB"  # tom mais vibrante no hover
 
         btn = ctk.CTkButton(
-            self.sidebar, text=text, width=180, height=40,
-            fg_color=color, hover_color=hover,
-            text_color=text_color, corner_radius=8, font=self.button_font,
+            self.sidebar,
+            text=text,
+            width=180,
+            height=40,
+            fg_color=color,
+            hover_color=hover,
+            text_color=text_color,
+            corner_radius=8,
+            font=self.button_font,
             command=command
         )
         btn.grid(row=row, column=0, padx=20, pady=10)
 
+    # === UTILITÁRIOS ===
+    # Função para limpar a tela sempre ao carregar conteúdos novos
+    # Essa função é chamada dentr de muitas outras, para deixar um visual limpo sempre que necessário
     def clear_main(self):
         for widget in self.main_frame.winfo_children():
             widget.destroy()
 
+    # Criação dos cards exibidos na tela home
     def create_card(self, row, col, title, value):
-        card = ctk.CTkFrame(self.main_frame, fg_color=COLORS["card_bg"], corner_radius=15, border_color=COLORS["accent_hover"], border_width=1)
+        card = ctk.CTkFrame(
+            self.main_frame,
+            fg_color=COLORS["card_bg"],
+            corner_radius=15,
+            border_color=COLORS["accent_hover"],
+            border_width=1
+        )
         card.grid(row=row, column=col, padx=15, pady=10, sticky="nsew")
-        ctk.CTkLabel(card, text=title, font=self.section_font, text_color=COLORS["text_dark"]).pack(pady=(15, 5))
-        ctk.CTkLabel(card, text=value, font=self.text_font, text_color=COLORS["text_light"]).pack(pady=(0, 15))
 
-    # ====== Telas ======
+        # Define tamanho fixo e evita expansão
+        card.grid_propagate(False)
+        card.configure(width=250, height=140)
+
+        # Título
+        ctk.CTkLabel(
+            card,
+            text=title,
+            font=self.section_font,
+            text_color=COLORS["text_dark"]
+        ).pack(pady=(15, 5))
+
+        # Valor
+        ctk.CTkLabel(
+            card,
+            text=value,
+            font=self.text_font,
+            text_color=COLORS["accent"]
+        ).pack(pady=(0, 10))
+
+    # === TELAS ===
+
+    # ===== Tela Inicial =====
     def show_home(self):
         self.clear_main()
 
-        from controller.usuarios_controller import contarUsuarios
-        from controller.turmas_controller import contarTurmas
+        # === Título ===
+        ctk.CTkLabel(
+            self.main_frame,
+            text=f"Bem-Vindo(a), {self.usuario['nome']}!",
+            font=self.title_font,
+            text_color=COLORS["accent"],  # Destaque vibrante no título
+        ).grid(row=0, column=0, columnspan=3, pady=(20, 30))
 
-        total_usuarios = contarUsuarios()
-        total_turmas = contarTurmas()
-        total_relatorios = 0 # Atualizar quando tiver o módulo relatórios feito
+        # === Cards ===
+        self.create_card(1, 0, "👥 Usuários", f"Total: 15")
+        self.create_card(1, 1, "🏫 Turmas", f"Ativas: 5")
+        self.create_card(1, 2, "📊 Relatórios", f"Hoje: 0")
 
-        ctk.CTkLabel(self.main_frame, text="Visão Geral do Sistema", font=self.title_font, text_color=COLORS["text_dark"]).grid(row=0, column=0, columnspan=3, pady=(20, 30))
-        self.create_card(1, 0, "👥 Usuários", f"Total: {total_usuarios}") # Pode buscar dinamicamente do banco
-        self.create_card(1, 1, "🏫 Turmas", f"Ativas: {total_turmas}")
-        self.create_card(1, 2, "📊 Relatórios", "Hoje: 5")
+        # Ajuste de espaçamento e colunas
+        self.main_frame.grid_columnconfigure((0, 1, 2), weight=1)
+        self.main_frame.grid_rowconfigure(1, weight=0)
 
+    # ===== Usuários =======
     def show_usuarios(self):
-
+        self.clear_main()
         from controller.usuarios_controller import listarTodosUsuarios
         from view.forms import form_cadastrar_usuario, form_editar_usuario
 
-        self.clear_main()
-
         ctk.CTkLabel(
             self.main_frame,
-            text="Gerenciamento de Usuários",
+            text=" 👥 Gerenciamento de Usuários",
             font=self.title_font,
             text_color=COLORS["text_dark"]
         ).pack(pady=20)
 
-    
-     # BOTÃO DE NOVO USUÁRIO
-   
+        # Botão novo usuário
         btn_novo_usuario = ctk.CTkButton(
             self.main_frame,
             text="➕ Cadastrar novo usuário",
@@ -120,8 +165,7 @@ class DashboardAdmin(ctk.CTkToplevel):
         )
         btn_novo_usuario.pack(pady=10)
 
-        # LISTAGEM USUÁRIO
-
+        # Lista usuários
         frame_lista = ctk.CTkScrollableFrame(self.main_frame, width=700, height=400)
         frame_lista.pack(pady=10, padx=20, fill="both", expand=True)
 
@@ -133,28 +177,16 @@ class DashboardAdmin(ctk.CTkToplevel):
 
         headers = ["ID", "Nome", "Tipo", "Ações"]
         for col, header in enumerate(headers):
-            ctk.CTkLabel(frame_lista, text=header, font=("Arial", 12, "bold")).grid(
-                row=0, column=col, padx=10, pady=5, sticky="w"
-            )
+            ctk.CTkLabel(frame_lista, text=header, font=("Arial", 12, "bold")).grid(row=0, column=col, padx=10, pady=5, sticky="w")
 
         for i, usuario in enumerate(usuarios, start=1):
-            ctk.CTkLabel(frame_lista, text=str(usuario['id_usuario']), width=50, anchor="w").grid(
-                row=i, column=0, padx=10, sticky="w"
-            )
-            ctk.CTkLabel(frame_lista, text=usuario['nome'], width=200, anchor="w").grid(
-                row=i, column=1, padx=10, sticky="w"
-            )
-            ctk.CTkLabel(frame_lista, text=usuario['tipo'], width=100, anchor="w").grid(
-                row=i, column=2, padx=10, sticky="w"
-            )
+            ctk.CTkLabel(frame_lista, text=str(usuario['id_usuario']), width=50, anchor="w").grid(row=i, column=0, padx=10, sticky="w")
+            ctk.CTkLabel(frame_lista, text=usuario['nome'], width=200, anchor="w").grid(row=i, column=1, padx=10, sticky="w")
+            ctk.CTkLabel(frame_lista, text=usuario['tipo'], width=100, anchor="w").grid(row=i, column=2, padx=10, sticky="w")
 
             btn_editar = ctk.CTkButton(
-                frame_lista,
-                text="✏️ Editar",
-                width=80,
-                command=lambda u=usuario: form_editar_usuario(
-                    self, u, self.show_usuarios
-                )
+                frame_lista, text="✏️ Editar", width=80,
+                command=lambda u=usuario: form_editar_usuario(self, u, self.show_usuarios)
             )
             btn_editar.grid(row=i, column=3, padx=5)
 
@@ -168,26 +200,24 @@ class DashboardAdmin(ctk.CTkToplevel):
             )
             btn_excluir.grid(row=i, column=4, padx=5)
 
+    # Função para excluir usuários
     def excluir_usuario(self, id_usuario):
-
         from controller.usuarios_controller import excluirUsuarios
-
         resposta = messagebox.askyesno("Confirmação", "Deseja realmente excluir este usuário?")
         if resposta:
             msg = excluirUsuarios(id_usuario)
             messagebox.showinfo("Resultado", msg)
             self.show_usuarios()  # Atualiza a lista
 
+    # ====== Turmas ======    
     def show_turmas(self):
-
-        from controller.turmas_controller import listarTodasTurmas, cadastrarTurmas
-        from view.forms import form_cadastrar_turma, form_editar_turma
-
         self.clear_main()
+        from controller.turmas_controller import listarTodasTurmas
+        from view.forms import form_cadastrar_turma, form_editar_turma
 
         ctk.CTkLabel(
             self.main_frame,
-            text="Gerenciamento de Turmas",
+            text=" 🏫 Gerenciamento de Turmas",
             font=self.title_font,
             text_color=COLORS["text_dark"]
         ).pack(pady=20)
@@ -204,41 +234,26 @@ class DashboardAdmin(ctk.CTkToplevel):
         frame_lista = ctk.CTkScrollableFrame(self.main_frame, width=700, height=400)
         frame_lista.pack(pady=10, padx=20, fill="both", expand=True)
 
-        # Lista todas as turmas
         turmas = listarTodasTurmas()
 
         if not turmas:
             ctk.CTkLabel(frame_lista, text="⚠️ Nenhuma turma encontrada.", font=("Arial", 14)).pack(pady=20)
             return
 
-        # Cabeçalho
         headers = ["ID", "Nome", "Ações"]
         for col, header in enumerate(headers):
-            ctk.CTkLabel(frame_lista, text=header, font=("Arial", 12, "bold")).grid(
-                row=0, column=col, padx=10, pady=5, sticky="w"
-            )
+            ctk.CTkLabel(frame_lista, text=header, font=("Arial", 12, "bold")).grid(row=0, column=col, padx=10, pady=5, sticky="w")
 
-        # Linhas de turmas
         for i, turma in enumerate(turmas, start=1):
-            ctk.CTkLabel(frame_lista, text=str(turma['id_turma']), width=50, anchor="w").grid(
-                row=i, column=0, padx=10, sticky="w"
-            )
-            ctk.CTkLabel(frame_lista, text=turma['nome'], width=200, anchor="w").grid(
-                row=i, column=1, padx=10, sticky="w"
-            )
+            ctk.CTkLabel(frame_lista, text=str(turma['id_turma']), width=50, anchor="w").grid(row=i, column=0, padx=10, sticky="w")
+            ctk.CTkLabel(frame_lista, text=turma['nome'], width=200, anchor="w").grid(row=i, column=1, padx=10, sticky="w")
 
-            # Botão de editar → chama form do forms.py
             btn_editar = ctk.CTkButton(
-                frame_lista,
-                text="✏️ Editar",
-                width=80,
-                command=lambda t=turma: form_editar_turma(
-                    self, t, self.show_turmas
-                )
+                frame_lista, text="✏️ Editar", width=80,
+                command=lambda t=turma: form_editar_turma(self, t, self.show_turmas)
             )
             btn_editar.grid(row=i, column=2, padx=5)
 
-            # Botão de excluir → chama método da classe
             btn_excluir = ctk.CTkButton(
                 frame_lista,
                 text="🗑️ Excluir",
@@ -249,31 +264,15 @@ class DashboardAdmin(ctk.CTkToplevel):
             )
             btn_excluir.grid(row=i, column=3, padx=5)
 
+    # Função para excluir turmas
     def excluir_turma(self, id_turma):
-
         from controller.turmas_controller import excluirTurmas
-
         resposta = messagebox.askyesno("Confirmação", "Deseja realmente excluir esta turma?")
         if resposta:
             msg = excluirTurmas(id_turma)
             messagebox.showinfo("Resultado", msg)
             self.show_turmas()  # Atualiza a lista
-            
-    def show_permissoes(self):
-        self.clear_main()
-        ctk.CTkLabel(self.main_frame, text="Controle de Acessos e Permissões", font=self.title_font, text_color=COLORS["text_dark"]).pack(pady=50)
 
     def show_relatorios(self):
         self.clear_main()
         ctk.CTkLabel(self.main_frame, text="Relatórios do Sistema", font=self.title_font, text_color=COLORS["text_dark"]).pack(pady=50)
-
-    def sair(self):
-    # """Fecha o dashboard e retorna à tela de login"""
-        self.withdraw()
-        from view.login_view import LoginApp
-        LoginApp()
-
-if __name__ == "__main__":
-    usuario_dummy = {"nome": "Admin"}  # Exemplo de usuário logado
-    app = DashboardAdmin(usuario_dummy)
-    app.mainloop()

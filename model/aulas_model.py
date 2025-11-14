@@ -1,22 +1,22 @@
 from model.conexao import conectar
 
     # Cadastro de aulas no DB
-def inserirAulas(titulo, descricao, id_turma, data_aula):
+def inserirAulas(titulo, descricao, data_aula):
     conexao = conectar()
     cursor = conexao.cursor(dictionary=True)
-    cursor.execute("INSERT INTO aulas (titulo, descricao, id_turma, data_aula) VALUES (%s, %s, %s, %s)",
-                   (titulo, descricao, id_turma, data_aula)
+    cursor.execute("INSERT INTO aulas (titulo, descricao, data_aula) VALUES (%s, %s, %s)",
+                   (titulo, descricao, data_aula)
     )
     conexao.commit()
     conexao.close()
 
     # Lista Aulas referentes a cada turma
     
-def listarAulasPorTurma(id_turma):
+def listarAulas():
     conexao = conectar()
     cursor = conexao.cursor(dictionary=True)
-    cursor.execute("SELECT id_aula, titulo, descricao, data_aula FROM aulas WHERE = id_turma = %s", (id_turma,))
-    aulas = cursor.fetchall()
+    cursor.execute("SELECT * FROM aulas ORDER BY id_aula DESC")
+    aulas = cursor.fetchall()  # ✅ deve ser fetchall, não fetchone
     conexao.close()
     return aulas
 
@@ -37,7 +37,7 @@ def atualizarAulas(id_aula, novos_dados):
         # Adiciona o id_aula no final da lista de valores
         valores.append(id_aula)
         # Monta a query corretamente
-        cursor.execute(f"UPDATE aula SET {', '.join(campos)} WHERE id_aula = %s", valores)
+        cursor.execute(f"UPDATE aulas SET {', '.join(campos)} WHERE id_aula = %s", valores)
         conexao.commit()
         return True
 
@@ -67,5 +67,5 @@ def deletarAulas(id_aula):
     conexao = conectar()
     cursor = conexao.cursor()
     cursor.execute("DELETE FROM aulas WHERE id_aula = %s", (id_aula,))
-    cursor.commit()
-    cursor.close()
+    conexao.commit()
+    conexao.close()

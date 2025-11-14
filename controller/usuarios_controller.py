@@ -48,5 +48,5 @@ def excluirUsuarios(id_usuario):
     return f"🗑️ Usuário {id_usuario} deletado com sucesso!"
 
 def contarUsuarios():
-    usuarios = listarUsuarios
+    usuarios = listarTodosUsuarios()  # <-- adiciona os parênteses
     return len(usuarios)

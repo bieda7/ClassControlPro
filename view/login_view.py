@@ -2,6 +2,7 @@ import customtkinter as ctk
 from customtkinter import ThemeManager
 from CTkMessagebox import CTkMessagebox
 from tkinter import messagebox
+from PIL import Image
 
 # Configuração inicial
 ctk.set_appearance_mode("light")
@@ -27,7 +28,7 @@ class LoginApp(ctk.CTk):
         self.title("ClassControlPro - Login")
         self.geometry("900x600")
         self.configure(fg_color="#F5F5F5")
-        self.resizable(False, False)
+        self.resizable(True, True)
 
         # === Fontes ===
         self.title_font = get_theme_font("title", {"family": "Inter", "size": 22, "weight": "bold"})
@@ -35,41 +36,45 @@ class LoginApp(ctk.CTk):
         self.small_font = get_theme_font("small", {"family": "Inter", "size": 12, "weight": "normal"})
 
         # === Frame de login ===
-        self.login_frame = ctk.CTkFrame(self, width=400, height=400, corner_radius=15, fg_color="white")
+        self.login_frame = ctk.CTkFrame(self, width=550, height=600, corner_radius=15, fg_color="white")
         self.login_frame.place(relx=0.5, rely=0.5, anchor="center")
 
+        logo_img = ctk.CTkImage(
+            light_image=Image.open("view/components/logotipo-classcontrolpro.png"),
+            size=(150, 150)
+        )
+
+        self.logo_label = ctk.CTkLabel(self.login_frame, image=logo_img, text="")
+        self.logo_label.pack(pady=(20, 0))
+    
         self.login_label = ctk.CTkLabel(
             self.login_frame,
-            text="Bem-vindo ao ClassControlPro",
+            text="Seja Bem-Vindo!",
             text_color="#1F2937",
             font=self.title_font
+            
         )
-        self.login_label.pack(pady=(40, 20))
+        self.login_label.pack(pady=(5, 40), padx=40)
 
         self.email_entry = ctk.CTkEntry(
             self.login_frame, placeholder_text="Email", width=300, height=35,
             fg_color="#F5F5F5", border_color="#FDBA74"
         )
-        self.email_entry.pack(pady=(10, 15))
+        self.email_entry.pack(pady=(10, 15), padx=40)
 
         self.password_entry = ctk.CTkEntry(
             self.login_frame, placeholder_text="Senha", show="*",
             width=300, height=35, fg_color="#F5F5F5", border_color="#FDBA74"
         )
-        self.password_entry.pack(pady=(5, 25))
+        self.password_entry.pack(pady=(5, 25), padx=40)
 
         self.login_button = ctk.CTkButton(
             self.login_frame, text="Entrar", width=200, height=40,
             fg_color="#F97316", hover_color="#FDBA74", text_color="white",
             font=self.button_font, command=self.loginView
         )
-        self.login_button.pack(pady=(5, 15))
+        self.login_button.pack(pady=(5, 40))
 
-        self.forgot_label = ctk.CTkLabel(
-            self.login_frame, text="Esqueceu a senha?",
-            text_color="#6B7280", font=self.small_font
-        )
-        self.forgot_label.pack()
 
     def loginView(self):
         
