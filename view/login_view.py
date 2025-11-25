@@ -82,6 +82,10 @@ class LoginApp(ctk.CTk):
         from view.dashboard_admin_view import DashboardAdmin
         from view.dashboard_professor_view import DashboardProfessor
         from view.dashboard_aluno_view import DashboardAluno
+        from controller.chatbot_controller import set_usuario_tipo
+        from model.alunos_model import buscarAlunoPorUsuario
+
+
 
         email = self.email_entry.get().strip()
         senha = self.password_entry.get().strip()
@@ -98,6 +102,19 @@ class LoginApp(ctk.CTk):
             self.password_entry.delete(0, 'end')
             self.email_entry.focus()
         else:
+            # Se for aluno, adiciona id_aluno ao dicionário
+            if usuario["tipo"] == "aluno":
+                from model.alunos_model import buscarAlunoPorUsuario
+                aluno = buscarAlunoPorUsuario(usuario["email"])
+
+                if aluno:
+                    usuario["id_aluno"] = aluno["id_aluno"]
+                    usuario["nome"] = aluno["nome"]
+                    usuario["id_turma"] = aluno["id_turma"]
+
+
+                
+            set_usuario_tipo(usuario["tipo"])
             # Fecha tela de login   
             self.withdraw()
 

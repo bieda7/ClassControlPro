@@ -7,6 +7,9 @@ from PIL import Image
 from controller.aulas_controller import listarTodasAulas, deletarAulasExistentes
 from controller.atividades_controller import listarTodasAtividades, deletarAtividades
 
+from view.chatbot_view import ChatBotFrame
+
+
 # Forms
 from view.forms import form_cadastrar_aula, form_editar_aula, form_cadastrar_atividade, form_editar_atividade
 
@@ -47,7 +50,12 @@ class DashboardProfessor(ctk.CTkToplevel):
         self.create_sidebar_button("🏠  Início", self.show_home, 1, active=True)
         self.create_sidebar_button("🧑‍🏫  Aulas", self.show_aulas, 2)
         self.create_sidebar_button("📚  Atividades", self.show_atividades, 3)
-        self.create_sidebar_button("🧾  Relatórios", self.show_relatorios, 4)
+        self.create_sidebar_button("🧾  Entregas", self.show_entregas, 4)
+        self.create_sidebar_button("🧾  Relatórios", self.show_relatorios, 5)
+        self.create_sidebar_button("🧾  Chatbot", self.show_chatbot, 6)
+
+        
+        
 
         # Botão sair
         self.btn_sair = ctk.CTkButton(
@@ -130,25 +138,72 @@ class DashboardProfessor(ctk.CTkToplevel):
     # === TELAS ===
 
     # ===== Tela Inicial =====
-    def show_home(self):
+    def show_home(self, *args):
+        from controller.relatorios_controller import obter_totais_dashboard
+
         self.clear_main()
 
-        # === Título de boas-vindas ===
-        ctk.CTkLabel(
+        # === CARREGA DADOS REAIS DO BANCO ===
+        totais = obter_totais_dashboard()
+
+        total_turmas = totais["turmas"]
+        total_aulas = totais["aulas"]
+        # ----------------------------
+        # 1. TEXTO DE BOAS-VINDAS
+        # ----------------------------
+        titulo = ctk.CTkLabel(
             self.main_frame,
-            text=f"Bem-Vindo(a), {self.usuario['nome']}!",
-            font=self.title_font,
-            text_color=COLORS["accent"]
-        ).grid(row=0, column=0, columnspan=3, pady=(20, 30))
+            text=f"✨ Bem-vindo(a), {self.usuario['nome']}! ✨\n",
+            font=ctk.CTkFont(size=26, weight="bold"),
+            text_color=COLORS["accent"],
+            justify="center"
+        )
+        titulo.grid(row=0, column=0, columnspan=3, pady=(10, 5), sticky="n")
 
-        # === Cards ===
-        self.create_card(1, 0, "🏫 Aulas", "3 Ativas")
-        self.create_card(1, 1, "📚 Atividades", "12 criadas")
-        self.create_card(1, 2, "📊 Relatórios", "2 pendentes")
+        subtitulo = ctk.CTkLabel(
+            self.main_frame,
+            text=(
+                "Este é o seu painel do Professor!\n\n"
+                "Gerencie aulas e atividades em um só lugar\n"
+                "de forma rápida, intuitiva e centralizada."
+            ),
+            font=ctk.CTkFont(size=16),
+            text_color="#030303",
+            justify="center"
+        )
+        subtitulo.grid(row=1, column=0, columnspan=3, pady=(0, 25), sticky="n")
 
-        # Ajuste de espaçamento e colunas
+        # ----------------------------------------------------
+        # 2. CARDS – DADOS REAIS E TOTALMENTE CENTRALIZADOS
+        # ----------------------------------------------------
+
+        card_fg = "#ffffff"
+        card_corner = 18
+
+        def criar_card(col, titulo, valor, cor):
+            card = ctk.CTkFrame(self.main_frame, fg_color=card_fg, corner_radius=card_corner)
+            card.grid(row=2, column=col, padx=25, pady=10, sticky="nsew")
+
+            ctitulo = ctk.CTkLabel(card, text=titulo, text_color="#444444",font=ctk.CTkFont(size=18, weight="bold"))
+            ctitulo.pack(pady=(15, 5))
+
+            cvalor = ctk.CTkLabel(
+                card,
+                text=str(valor),
+                font=ctk.CTkFont(size=32, weight="bold"),
+                text_color=cor
+            )
+            cvalor.pack(pady=(0, 15))
+
+        # Cards
+        criar_card(0, "Total Atividades", total_turmas, COLORS["accent"])
+        criar_card(2, "Aulas Disponíveis", total_aulas, COLORS["accent"])
+
+        # ----------------------------------------------------
+        # GRID RESPONSIVO
+        # ----------------------------------------------------
         self.main_frame.grid_columnconfigure((0, 1, 2), weight=1)
-        self.main_frame.grid_rowconfigure(1, weight=0)
+        self.main_frame.grid_rowconfigure(2, weight=1)
 
     
     # ===== Aulas =====
@@ -402,11 +457,167 @@ class DashboardProfessor(ctk.CTkToplevel):
 
     # ===== Relatórios =====
     def show_relatorios(self):
+        from controller.relatorios_controller import gerarRelatorioProf
+
         self.clear_main()
+
+        # Título
         ctk.CTkLabel(
-            self.main_frame, text="Relatórios de Desempenho",
-            font=self.title_font, text_color=COLORS["text_dark"]
-        ).grid(row=0, column=0, columnspan=3, pady=50)
+            self.main_frame,
+            text="📊 Relatórios do Professor",
+            font=self.title_font,
+            text_color=COLORS["text_dark"]
+        ).pack(pady=30)
 
+        # Frame central
+        frame = ctk.CTkFrame(self.main_frame, fg_color="white")
+        frame.pack(pady=20)
 
+        # Botão: Relatório do Professor
+        btn_rel_professor = ctk.CTkButton(
+            frame,
+            text="📘 Gerar Relatório do Professor",
+            width=260,
+            height=40,
+            fg_color=COLORS["accent"],
+            hover_color=COLORS["accent_hover"],
+            text_color="white",
+            font=self.button_font,
+            command=self.gerar_relatorio_professor_action
+        )
+        btn_rel_professor.pack(pady=15)
 
+    def gerar_relatorio_professor_action(self):
+        from controller.relatorios_controller import gerarRelatorioProf
+        try:
+            caminho = gerarRelatorioProf(self.usuario)
+            messagebox.showinfo(
+                "Relatório Gerado",
+                f"Relatório do professor criado com sucesso!\n\nLocal:\n{caminho}"
+            )
+        except Exception as e:
+            messagebox.showerror("Erro ao gerar relatório", str(e))
+    # NOVO
+    def show_entregas(self):
+        from model.atividades_model import listarEntregasProfessor
+        from view.forms import form_atribuir_nota
+
+        self.clear_main()
+
+        # Título
+        ctk.CTkLabel(
+            self.main_frame,
+            text="📦 Entregas dos Alunos",
+            font=("Arial Bold", 22),
+            text_color=COLORS["text_dark"]
+        ).pack(pady=20)
+
+        # Buscar entregas do professor logado
+        entregas = listarEntregasProfessor(self.usuario["id_usuario"])
+
+        if not entregas:
+            ctk.CTkLabel(
+                self.main_frame,
+                text="Nenhuma entrega encontrada.",
+                font=("Arial", 15),
+                text_color=COLORS["text_dark"]
+            ).pack(pady=20)
+            return
+
+        # === Lista com scroll ===
+        lista_scroll = ctk.CTkScrollableFrame(
+            self.main_frame,
+            fg_color="white",
+            width=850,
+            height=450,
+            corner_radius=12
+        )
+        lista_scroll.pack(fill="both", expand=True, padx=20, pady=10)
+
+        # === Cards de entregas ===
+        for entrega in entregas:
+            card = ctk.CTkFrame(lista_scroll, fg_color="#F8FAFC", corner_radius=12)
+            card.pack(fill="x", padx=10, pady=10)
+
+            # Atividade
+            ctk.CTkLabel(
+                card,
+                text=f"📘 {entrega['atividade']}",
+                font=("Arial", 16, "bold"),
+                text_color="#1F2937",
+                anchor="w"
+            ).pack(anchor="w", padx=15, pady=(10, 4))
+
+            # Aluno
+            ctk.CTkLabel(
+                card,
+                text=f"👤 Aluno: {entrega['aluno']}",
+                font=("Arial", 14),
+                text_color="#374151",
+                anchor="w"
+            ).pack(anchor="w", padx=15)
+
+            # Data
+            ctk.CTkLabel(
+                card,
+                text=f"🕒 Entregue em: {entrega['data_envio']}",
+                font=("Arial", 13),
+                text_color="#4B5563",
+                anchor="w"
+            ).pack(anchor="w", padx=15, pady=(0, 10))
+
+            # Resposta
+            ctk.CTkLabel(
+                card,
+                text="📝 Resposta enviada:",
+                font=("Arial", 14, "bold"),
+                text_color="#1F2937",
+            ).pack(anchor="w", padx=15)
+
+            resposta = ctk.CTkTextbox(
+                card,
+                height=110,
+                corner_radius=10,
+                fg_color="white",
+                border_color="#D1D5DB",
+                border_width=1,
+                font=("Arial", 13)
+            )
+            resposta.insert("1.0", entrega["resposta"])
+            resposta.configure(state="disabled")
+            resposta.pack(fill="x", padx=15, pady=(0, 10))
+
+            # Nota
+            nota_txt = "⭐ Nota ainda não atribuída" if entrega["nota"] is None else f"⭐ Nota: {entrega['nota']}"
+
+            ctk.CTkLabel(
+                card,
+                text=nota_txt,
+                font=("Arial", 14, "bold"),
+                text_color="#111827",
+                anchor="w"
+            ).pack(anchor="w", padx=15, pady=(5, 5))
+
+            # Botão de nota
+            ctk.CTkButton(
+                card,
+                text="🎯 Atribuir Nota",
+                fg_color=COLORS["accent"],
+                hover_color=COLORS["accent_hover"],
+                width=160,
+                height=35,
+                corner_radius=8,
+                command=lambda e=entrega: form_atribuir_nota(e, self.show_entregas)
+            ).pack(padx=15, pady=(0, 15), anchor="e")
+
+    def show_chatbot(self):
+        from view.chatbot_view import ChatBotFrame
+        try:
+            self.clear_main()
+            chat_frame = ChatBotFrame(self.main_frame, self.usuario)
+            chat_frame.pack(fill="both", expand=True, padx=20, pady=20)
+
+        
+        except Exception as e:
+        
+            messagebox.showerror("Erro no Chatbot", str(e))

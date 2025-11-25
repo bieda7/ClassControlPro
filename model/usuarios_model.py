@@ -1,18 +1,39 @@
 from model.conexao import conectar
 
+# Sempre que um usuario cadastrado for do tipo "aluno", o sistema também criará um registro com as mesmas informações na tabela alunos.
+# Inseri uma matricula no padrão "ALU...." para cada usuario do tipo aluno.
+def inserirAlunoAutomatico(nome, email):
+    conexao = conectar()
+    cursor = conexao.cursor(dictionary=True)
+
+    # Gerar matrícula automática (exemplo simples)
+    cursor.execute("SELECT COUNT(*) AS total FROM alunos")
+    total = cursor.fetchone()["total"] + 1
+    matricula = f"ALU{total:04d}"
+
+    cursor.execute(
+        "INSERT INTO alunos (matricula, nome, email) VALUES (%s, %s, %s)",
+        (matricula, nome, email)
+    )
+
+    conexao.commit()
+    conexao.close()
+
 
 def inserirUsuarios(nome, email, senha, tipo):
     conexao = conectar()
     cursor = conexao.cursor(dictionary=True)
-    cursor.execute( 
-        "INSERT INTO usuarios (nome, email, senha, tipo) VALUES (%s, %s, %s, %s)", # Comando SQL
+
+    cursor.execute(
+        "INSERT INTO usuarios (nome, email, senha, tipo) VALUES (%s, %s, %s, %s)",
         (nome, email, senha, tipo)
     )
-    # execute() é responsável por permitir a execução de comandos SQL dentro do código Python
-    conexao.commit() # Garante a gravação do usuário no Banco de Dados
-    conexao.close()
+    conexao.commit()
 
-    # Lista os usuários todos os usuários cadastrados no DB
+    # Criar aluno automaticamente caso o tipo seja "aluno"
+    if tipo.lower() == "aluno":
+        inserirAlunoAutomatico(nome, email)
+
 
 def listarUsuarios():
     conexao = conectar()

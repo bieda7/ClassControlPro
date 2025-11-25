@@ -1,4 +1,4 @@
-from model.atividades_model import inserirAtividades, listarAtividades, confirmarEntrega, atualizarAtividades, deletarAtividades
+from model.atividades_model import inserirAtividades, listarAtividades, registrar_entrega, atualizarAtividades, deletarAtividades
 
 
 # === Cadastrar Atividades ===
@@ -23,9 +23,18 @@ def excluirAtividades(id_atividade):
 
 # === Registrar Entrega de Atividade ===
 # aluno entrega atividade
-def registrarEntrega(id_atividade, id_usuario, status, nota=None, dia_entrega=None, observacao=None):
-    confirmarEntrega(id_atividade, id_usuario, status, nota, dia_entrega, observacao)
-    return "✅ Entrega de atividade registrada com sucesso!"
+from model.atividades_model import registrar_entrega
+
+def enviarEntregaAluno(id_atividade, id_aluno, resposta, arquivo_url):
+    if not resposta and not arquivo_url:
+        return "❌ Você deve enviar uma resposta ou um arquivo."
+
+    sucesso = registrar_entrega(id_atividade, id_aluno, resposta, arquivo_url)
+
+    if sucesso:
+        return "✅ Entrega enviada com sucesso!"
+    else:
+        return "❌ Erro ao enviar entrega."
 
 
 
